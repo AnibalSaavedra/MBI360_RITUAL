@@ -6,8 +6,7 @@ st.set_page_config(page_title="MBI 360° – Evaluación Integral del Ser", layo
 
 st.title("🌀 MBI 360° – Evaluación Integral del Ser")
 st.markdown("Bienvenido al sistema **MBI 360°**, una herramienta única para conocer en profundidad tu estado emocional, epigenético, físico y energético.")
-st.markdown("**Marca:** RITUAL  
-**Creador:** Aníbal Saavedra – Biotecnólogo MIB")
+st.markdown("**Marca:** RITUAL  \\n**Creador:** Aníbal Saavedra – Biotecnólogo MIB")
 
 st.markdown("Selecciona uno o varios módulos que deseas realizar:")
 modulos = {
