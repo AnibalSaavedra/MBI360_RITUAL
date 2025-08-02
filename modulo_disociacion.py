@@ -36,17 +36,23 @@ def modulo_disociacion():
         "Actuar sin emoción, como si fueras una máquina."
     ]
 
-    respuestas = {}
+    if "respuestas" not in st.session_state:
+        st.session_state.respuestas = {}
+    if "mostrar_explicacion" not in st.session_state:
+        st.session_state.mostrar_explicacion = [False]*len(afirmaciones)
+
     for i, pregunta in enumerate(afirmaciones):
         cols = st.columns([6, 1])
         with cols[0]:
-            respuestas[i] = st.slider(f"{i+1}. {pregunta}", 1, 5, 3)
+            st.session_state.respuestas[i] = st.slider(f"{i+1}. {pregunta}", 1, 5, 3, key=f"slider_{i}")
         with cols[1]:
-            if st.button("❓", key=f"exp_{i}"):
-                st.info(f"ℹ️ {explicaciones[i]}")
+            if st.button("❓", key=f"btn_{i}"):
+                st.session_state.mostrar_explicacion[i] = not st.session_state.mostrar_explicacion[i]
+        if st.session_state.mostrar_explicacion[i]:
+            st.info(f"ℹ️ {explicaciones[i]}")
 
     if st.button("Obtener resultados"):
-        puntaje_total = sum(respuestas.values())
+        puntaje_total = sum(st.session_state.respuestas.values())
         promedio = puntaje_total / len(afirmaciones)
         estado = "Alta disociación" if promedio > 3.5 else "Disociación leve o moderada"
 
