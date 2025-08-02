@@ -1,34 +1,28 @@
 
 import streamlit as st
+from modulo_disociacion import modulo_disociacion
 
-st.set_page_config(page_title="MBI 360° | RITUAL", layout="centered")
+st.set_page_config(page_title="MBI 360° – Evaluación Integral del Ser", layout="centered")
 
 st.title("🌀 MBI 360° – Evaluación Integral del Ser")
-st.markdown("""
-Bienvenido al sistema **MBI 360°**, una herramienta única para conocer en profundidad tu estado emocional, epigenético, físico y energético.
+st.markdown("Bienvenido al sistema **MBI 360°**, una herramienta única para conocer en profundidad tu estado emocional, epigenético, físico y energético.")
+st.markdown("**Marca:** RITUAL  
+**Creador:** Aníbal Saavedra – Biotecnólogo MIB")
 
-Selecciona el módulo que deseas evaluar:
-- Puedes elegir uno o varios, según tu interés.
-- Al finalizar, recibirás un informe PDF y podrás contactar directamente para iniciar tu proceso terapéutico.
-
-**Marca:** RITUAL  
-**Creador:** Aníbal Saavedra – Biotecnólogo MIB
-""")
-
+st.markdown("Selecciona uno o varios módulos que deseas realizar:")
 modulos = {
-    "Test de disociación o trauma": "🔹 Evaluar desconexión emocional y fragmentación del yo.",
-    "Estado epigenético emocional (materno/paterno)": "🔹 Analizar heridas heredadas y patrones repetitivos.",
-    "Condiciones clínicas opcionales": "🔹 Identificar posibles desequilibrios físicos que acompañan tu estado emocional."
+    "Test de disociación o trauma": st.checkbox("Test de disociación o trauma")
 }
 
-seleccion = st.multiselect("Selecciona los módulos que deseas realizar:", options=list(modulos.keys()))
+seleccionados = [k for k, v in modulos.items() if v]
 
-if seleccion:
-    st.success("Has seleccionado los siguientes módulos:")
-    for s in seleccion:
-        st.markdown(f"- {s}: {modulos[s]}")
-    st.markdown("👉 Presiona el botón inferior para comenzar con los módulos.")
-    if st.button("Iniciar Evaluación"):
-        st.info("⚙️ Esta función estará disponible en la próxima versión. Estamos preparando cada módulo.")
+if seleccionados:
+    st.markdown("### Has seleccionado los siguientes módulos:")
+    if "Test de disociación o trauma" in seleccionados:
+        st.markdown("🔹 **Test de disociación o trauma**: Evaluar desconexión emocional y fragmentación del yo.")
+
+    if st.button("👉 Presiona aquí para comenzar"):
+        if "Test de disociación o trauma" in seleccionados:
+            modulo_disociacion()
 else:
-    st.info("Selecciona al menos un módulo para comenzar.")
+    st.warning("Selecciona al menos un módulo para continuar.")
