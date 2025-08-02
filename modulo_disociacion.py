@@ -1,96 +1,75 @@
 
 import streamlit as st
 from fpdf import FPDF
-import datetime
+from datetime import datetime
+import base64
+from io import BytesIO
 
 def modulo_disociacion():
-    st.header("🧠 Test de Disociación o Trauma – DES-II")
-    st.markdown("Este test evalúa experiencias disociativas. Responde con sinceridad cuánto te ocurren estas experiencias (0 a 100%).")
+    st.header("Test de Disociación o Trauma (DES-II)")
+    st.markdown("Este módulo evalúa la presencia de disociación psíquica, una desconexión emocional o fragmentación del yo que puede tener origen en eventos traumáticos.")
+    st.markdown("**Instrucciones:** Lee cada afirmación y responde cuánto te identificas con ella del 1 al 5. Si no entiendes alguna afirmación, puedes presionar el botón “¿Qué significa esto?” para una breve explicación.")
 
     afirmaciones = [
-        "Pérdidas de tiempo (no recordar lo que hizo).",
-        "Recordar cosas que no hizo.",
-        "Encontrar objetos que no recuerda haber comprado.",
-        "Sentirse fuera de su cuerpo.",
-        "Escuchar voces internas con opiniones distintas.",
-        "Cambios bruscos de humor sin causa aparente.",
-        "Sentir que actúa como si fuera otra persona.",
-        "Ver cosas que otros no ven.",
-        "Falta de conexión con el entorno.",
-        "Automatismo en tareas cotidianas (manejar sin recordar el trayecto).",
-        "Sentirse como si observara una película de sí mismo.",
-        "No reconocer lugares conocidos.",
-        "Sentirse desconectado emocionalmente.",
-        "No recordar eventos importantes.",
-        "Sentirse controlado por fuerzas externas.",
-        "Olvidar lo que acaba de decir o hacer.",
-        "Tener nombres distintos para diferentes contextos.",
-        "Conversaciones sin recordar su inicio.",
-        "Soñar despierto en exceso.",
-        "Sentirse ajeno a su cuerpo.",
-        "Bloqueos de memoria frecuentes.",
-        "Confusión sobre quién es.",
-        "Sentir que hay 'otra parte de sí mismo'.",
-        "Despersonalización.",
-        "Desrealización.",
-        "Cambiar la letra al escribir sin darse cuenta.",
-        "Sentirse como niño/a en situaciones cotidianas.",
-        "Experimentar recuerdos como si estuviera viviéndolos nuevamente."
+        "A menudo siento que no soy yo quien está experimentando lo que hago.",
+        "Siento que estoy observando mi vida como si fuera una película.",
+        "Pierdo la noción del tiempo y no recuerdo lo que hice.",
+        "A veces me encuentro en un lugar sin saber cómo llegué ahí.",
+        "Me desconecto emocionalmente cuando algo me molesta.",
+        "Siento que tengo múltiples versiones de mí mismo.",
+        "Tengo recuerdos que no parecen míos.",
+        "Me cuesta recordar detalles de momentos importantes.",
+        "Mi cuerpo se siente ajeno a mí en algunas ocasiones.",
+        "Siento que funciono como un robot, sin emociones."
     ]
 
-    respuestas = []
-    for i, af in enumerate(afirmaciones):
-        val = st.slider(f"{i+1}. {af}", 0, 100, 0, 5, key=f"af_{i}")
-        respuestas.append(val)
+    explicaciones = [
+        "Sensación de no habitar el propio cuerpo durante acciones cotidianas.",
+        "Vivencias similares a mirar una película en tercera persona.",
+        "Períodos de tiempo con lagunas de memoria inexplicables.",
+        "Llegar a lugares sin recordar el trayecto.",
+        "Desconectarse emocionalmente frente a conflictos.",
+        "Percepción interna de tener varias identidades.",
+        "Recuerdos que parecen ajenos o confusos.",
+        "Fallas para recordar eventos clave personales.",
+        "Sensación de que el cuerpo no es propio.",
+        "Actuar sin emoción, como si fueras una máquina."
+    ]
 
-    if st.button("Finalizar y generar informe"):
-        puntaje_total = round(sum(respuestas) / len(respuestas), 2)
-        st.subheader("📊 Resultado:")
-        if puntaje_total < 30:
-            estado = "bajo"
-            mensaje = "No se observan signos relevantes de disociación."
-        elif 30 <= puntaje_total < 60:
-            estado = "moderado"
-            mensaje = "Se observan rasgos disociativos moderados. Sería recomendable explorar posibles experiencias traumáticas pasadas."
-        else:
-            estado = "alto"
-            mensaje = "Alto nivel de disociación. Es probable que existan traumas no integrados que requieren acompañamiento terapéutico."
+    respuestas = {}
+    for i, pregunta in enumerate(afirmaciones):
+        cols = st.columns([6, 1])
+        with cols[0]:
+            respuestas[i] = st.slider(f"{i+1}. {pregunta}", 1, 5, 3)
+        with cols[1]:
+            if st.button("❓", key=f"exp_{i}"):
+                st.info(f"ℹ️ {explicaciones[i]}")
 
-        st.success(f"Puntaje promedio: {puntaje_total}% ({estado.upper()})")
-        st.markdown(f"**Interpretación:** {mensaje}")
+    if st.button("Obtener resultados"):
+        puntaje_total = sum(respuestas.values())
+        promedio = puntaje_total / len(afirmaciones)
+        estado = "Alta disociación" if promedio > 3.5 else "Disociación leve o moderada"
 
-        # Recomendaciones
-        st.markdown("### 🧭 Recomendaciones:")
-        st.markdown("- Considera iniciar un proceso terapéutico de integración.")
-        st.markdown("- Técnicas como EMDR, hipnosis, PNL y constelaciones familiares pueden ser útiles.")
-        st.markdown("- Si lo deseas, puedes agendar una consulta personalizada.")
+        st.success(f"Tu nivel de disociación: **{estado}** (Promedio: {promedio:.2f}/5)")
+        st.markdown("🔎 A continuación puedes descargar tu informe personalizado en PDF o contactar por WhatsApp.")
 
-        # PDF
         pdf = FPDF()
         pdf.add_page()
-        pdf.set_font("Arial", "B", 16)
-        pdf.cell(0, 10, "Informe de Evaluación – MBI 360°", ln=True, align="C")
-        pdf.ln(10)
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(0, 10, "Informe – Test de Disociación", ln=1)
         pdf.set_font("Arial", "", 12)
-        pdf.cell(0, 10, "Módulo: Test de Disociación o Trauma (DES-II)", ln=True)
-        pdf.cell(0, 10, f"Puntaje promedio: {puntaje_total}%", ln=True)
-        pdf.cell(0, 10, f"Estado: {estado.upper()}", ln=True)
-        pdf.multi_cell(0, 10, f"Interpretación: {mensaje}")
-        pdf.ln(10)
-        pdf.cell(0, 10, "Fecha: " + datetime.datetime.now().strftime("%d-%m-%Y"), ln=True)
-        pdf.ln(20)
-        pdf.cell(0, 10, "Firma: Aníbal Saavedra – Biotecnólogo MIB", ln=True)
+        pdf.cell(0, 10, f"Fecha: {datetime.today().strftime('%d/%m/%Y')}", ln=1)
+        pdf.multi_cell(0, 10, f"Resultado: {estado} (Promedio: {promedio:.2f}/5)\n\nEste resultado sugiere que existe un nivel {'alto' if promedio > 3.5 else 'moderado'} de desconexión emocional, posiblemente asociado a experiencias traumáticas. Se recomienda una evaluación terapéutica más profunda.")
 
-        pdf_output = str(modulo_dir / "informe_disociacion.pdf")
-        pdf.output(pdf_output)
+        pdf.cell(0, 10, "", ln=1)
+        pdf.set_font("Arial", "I", 10)
+        pdf.cell(0, 10, "Aníbal Saavedra – Biotecnólogo MIB", ln=1)
 
-        with open(pdf_output, "rb") as file:
-            btn = st.download_button(
-                label="📥 Descargar Informe PDF",
-                data=file,
-                file_name="Informe_DISOCIACION_MBI360.pdf",
-                mime="application/pdf"
-            )
+        buffer = BytesIO()
+        pdf.output(buffer)
+        buffer.seek(0)
+        b64_pdf = base64.b64encode(buffer.read()).decode("utf-8")
+        href = f'<a href="data:application/pdf;base64,{b64_pdf}" download="informe_disociacion.pdf">📄 Descargar informe PDF</a>'
+        st.markdown(href, unsafe_allow_html=True)
 
-        # WhatsApp contacto
-        st.markdown("📲 ¿Quieres conversar tu resultado o agendar? [Haz clic aquí para contactar por WhatsApp](https://wa.me/56967010107)")
+        st.markdown("📲 ¿Deseas apoyo terapéutico? [Contáctame por WhatsApp](https://wa.me/56967010107)")
